@@ -1,0 +1,27 @@
+service: baselime-pokedex
+
+custom:
+  region: eu-west-1
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  memorySize: 128
+  stage: ${opt:stage}
+  region: "${self:custom.region}"
+  logRetentionInDays: 1
+  versionFunctions: false
+
+functions:
+  pokedex:
+    handler: index.handler
+    description: ${opt:stage} - gets a pokemon from the pokedex
+    events:
+      - http: 
+          path: pokemons/{name}
+          method: get 
+          cors: true
+          request: 
+            parameters: 
+              paths: 
+                name: true
