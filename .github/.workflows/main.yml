@@ -1,0 +1,28 @@
+on: [pull_request]
+
+jobs:
+  baselime:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: setup baselime
+        id: baselime
+        uses: baselime/action-setup-baselime@v0.0.1
+        with:
+          baselime-api-key: ${{secrets.BASELIME_API_KEY}}
+      - name: Checkout PR branch
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+      - name: Generate Baselime status
+        run: |
+          baselime status --out-file=/tmp/baselime.json
+      - name: Post baselime comment
+        run: |
+            baselime comment github --path=/tmp/baselime.json \
+                                     --repo=$GITHUB_REPOSITORY \
+                                     --github-token=${{github.token}} \
+                                     --pull-request=${{github.event.pull_request.number}} \
+                                     --behavior=update
