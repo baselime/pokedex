@@ -1,65 +1,12 @@
-get-pokemon-errors:
+error-getting-pokemons:
   type: query
   properties:
-    name: Error when getting a pokemon
     parameters:
+      dataset: logs
       calculations:
         - COUNT
       filters:
-        - "@message.message := 'Backend error'"
-      groupBy:
+        - "@message.extra.code = 500"
+      groupBy: 
         type: string
         value: "@message.extra.name"
-      dataset: logs
-
-get-pokemon-requests:
-  type: query
-  properties:
-    name: The requests when getting a pokemon
-    parameters:
-      calculations:
-        - COUNT
-      filters:
-        - "@message.message := REQUEST"
-      groupBy:
-        type: string
-        value: "@message.extra.name"
-      dataset: logs
-
-get-pokemon-error-alert:
-  type: alert
-  properties:
-    channels:
-      - !ref developers
-    name: More than 10 errors when getting a pokemon over the past hour
-    parameters:
-      duration: 60
-      threshold: :> 10
-      frequency: 60
-      query: !ref get-pokemon-errors
-
-get-pokemon-errors-chart:
-  type: chart
-  properties:
-    name: Error count when getting a pokemon
-    type: bar
-    parameters:
-      duration: 120
-      query: !ref get-pokemon-errors
-
-get-pokemon-requests-chart:
-  type: chart
-  properties:
-    name: Error count when getting a pokemon
-    type: bar
-    parameters:
-      duration: 120
-      query: !ref get-pokemon-requests
-
-pokedex-dashboard:
-  type: dashboard
-  properties:
-    name: Pokedex Dashboard
-    charts:
-      - !ref get-pokemon-errors-chart
-      - !ref get-pokemon-requests-chart
