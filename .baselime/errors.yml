@@ -23,4 +23,4 @@ boris:
   properties:
     type: email
     targets:
-      - boris@baselime.io
+      - email@email.io
