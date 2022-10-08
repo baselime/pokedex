@@ -1,65 +1,26 @@
 get-pokemon-errors:
   type: query
   properties:
+    parameters:
+      dataset: logs
+      filters:
+        - "@message.extra.code != 200"
+      calculations:
+        - COUNT
     name: Error when getting a pokemon
-    parameters:
-      calculations:
-        - COUNT
-      filters:
-        - "@message.message := 'Backend error'"
-      groupBy:
-        type: string
-        value: "@message.extra.name"
-      dataset: logs
-
-get-pokemon-requests:
-  type: query
-  properties:
-    name: The requests when getting a pokemon
-    parameters:
-      calculations:
-        - COUNT
-      filters:
-        - "@message.message := REQUEST"
-      groupBy:
-        type: string
-        value: "@message.extra.name"
-      dataset: logs
-
-get-pokemon-error-alert:
+non-200-responses:
   type: alert
   properties:
     channels:
-      - !ref developers
-    name: More than 10 errors when getting a pokemon over the past hour
+      - !ref boris
     parameters:
-      duration: 60
-      threshold: :> 10
-      frequency: 60
+      duration: 30
+      threshold: "> 10"
+      frequency: 30
       query: !ref get-pokemon-errors
-
-get-pokemon-errors-chart:
-  type: chart
+boris:
+  type: channel
   properties:
-    name: Error count when getting a pokemon
-    type: bar
-    parameters:
-      duration: 120
-      query: !ref get-pokemon-errors
-
-get-pokemon-requests-chart:
-  type: chart
-  properties:
-    name: Error count when getting a pokemon
-    type: bar
-    parameters:
-      duration: 120
-      query: !ref get-pokemon-requests
-
-pokedex-dashboard:
-  type: dashboard
-  properties:
-    name: Pokedex Dashboard
-    charts:
-      - !ref get-pokemon-errors-chart
-      - !ref get-pokemon-requests-chart
+    type: email
+    targets:
+      - boris@baselime.io

@@ -22,7 +22,7 @@ module.exports.handler = async (event, context) => {
   try {
 
     const rand = Math.random();
-    const threshold = name === "Bulbasaur" ? 0.1 : 0.005;
+    const threshold = name === "Bulbasaur" ? 0.5 : 0.1;
     if (rand < threshold) {
       console.log(JSON.stringify({ message: "Backend error", extra: { rand, requestId, name } }));
       throw new Error("Backend error");

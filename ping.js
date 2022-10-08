@@ -12,6 +12,7 @@ async function ping() {
       console.log(`Calling with ${pokemons[index]}`);
       await axios(url);
     } catch(_) {
+      console.log("Error")
       // swallow the error
     }
     await wait(100 * index);
