@@ -22,7 +22,7 @@ module.exports.handler = async (event, context) => {
   try {
 
     const rand = Math.random();
-    const threshold = name === "Bulbasaur" ? 0.1 : 0.005;
+    const threshold = name === "Bulbasaur" ? 0.5 : 0.1;
     if (rand < threshold) {
       console.log(JSON.stringify({ message: "Backend error", extra: { rand, requestId, name } }));
       throw new Error("Backend error");
@@ -41,7 +41,7 @@ module.exports.handler = async (event, context) => {
     return buildResponse(data, 200);
   } catch (error) {
     console.log(JSON.stringify({ message: "Unexpected error when getting a pokemon", extra: { error, code: 500, requestId } }));
-    console.log(JSON.stringify({ message: "RESPONSE", extra: { data, code: 500, requestId } }));
+    console.log(JSON.stringify({ message: "RESPONSE", extra: { name, code: 500, requestId } }));
     return buildResponse({ message: "Unexpected error" }, 500);
   }
 };
