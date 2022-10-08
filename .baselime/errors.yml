@@ -1,4 +1,4 @@
-get-pokemon-errors:
+error-getting-pokemons:
   type: query
   properties:
     parameters:

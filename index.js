@@ -41,7 +41,7 @@ module.exports.handler = async (event, context) => {
     return buildResponse(data, 200);
   } catch (error) {
     console.log(JSON.stringify({ message: "Unexpected error when getting a pokemon", extra: { error, code: 500, requestId } }));
-    console.log(JSON.stringify({ message: "RESPONSE", extra: { data, code: 500, requestId } }));
+    console.log(JSON.stringify({ message: "RESPONSE", extra: { name, code: 500, requestId } }));
     return buildResponse({ message: "Unexpected error" }, 500);
   }
 };
