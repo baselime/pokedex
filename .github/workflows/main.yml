@@ -17,7 +17,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           persist-credentials: false
-      - name: Generate Baselime status
+      - name: Generate Baselime status Here
         run: |
           baselime status --out-file=/tmp/baselime.json
       - name: Post baselime comment
