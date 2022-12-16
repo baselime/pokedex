@@ -1,0 +1,35 @@
+version: 2.1
+
+workflows:
+  version: 2
+  pla-push-workflow:
+    jobs:
+      - plan
+      - hold:
+          type: approval
+          requires:
+            - plan
+      - push:
+          requires:
+            - hold
+
+jobs:
+  plan:
+    docker:
+      - image: baselime/baselime:latest
+        environment:
+
+    steps:
+      - checkout
+      - run:
+          name: Plan
+          command: baselime plan --c .baselime
+  push:
+    docker:
+      - image: baselime/baselime:latest
+        environment:
+          BASELIME_DOMAIN: baselime.cc
+    steps:
+      - run:
+          name: Push
+          command: baselime push -y --c .baselime
