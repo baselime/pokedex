@@ -1,0 +1,28 @@
+# Make sure to add BASELIME_API_KEY to your CI/CD variables in Gitlab settings section
+
+default:
+  image:
+    name: baselime/baselime:latest
+    entrypoint: [""]
+
+variables:
+  BASELIME_API_KEY: $BASELIME_API_KEY
+
+stages:
+  - plan
+  - push
+
+plan:
+  stage: plan
+  script:
+    - echo "$BASELIME_API_KEY"
+    - baselime plan --c .baselime
+
+push:
+  stage: push
+  needs:
+    - plan
+  when: manual
+  allow_failure: true
+  script:
+    - baselime push -y --c .baselime

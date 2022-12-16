@@ -1,0 +1,18 @@
+# Remember to add BASELIME_API_KEY to repository variables in your Bitbucket
+
+#
+image: baselime/baselime:latest
+
+pipelines:
+  default:
+    - step:
+        name: 'Plan'
+        script:
+          - baselime plan --c .baselime
+    - step:
+        name: 'Push'
+        # Because we use "-y" flag in push command, we want to make sure the trigger is "manual"
+        trigger: 'manual'
+        script:
+          # This will push the changes without asking for confirmation again.
+          - baselime push -y --c .baselime
