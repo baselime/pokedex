@@ -21,3 +21,6 @@ jobs:
 
       - name: Push the changes automatically
         run: baselime push -y --c $GITHUB_WORKSPACE/.baselime
+
+      - name: Print report
+        run: baselime report --c $GITHUB_WORKSPACE/.baselime

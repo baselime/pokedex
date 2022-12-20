@@ -11,12 +11,13 @@ variables:
 stages:
   - plan
   - push
+  - report
 
 plan:
   stage: plan
   script:
     - echo "$BASELIME_API_KEY"
-    - baselime plan --c .baselime
+    - echo no | baselime push --c .baselime
 
 push:
   stage: push
@@ -26,3 +27,10 @@ push:
   allow_failure: true
   script:
     - baselime push -y --c .baselime
+
+report:
+  stage: report
+  needs:
+    - push
+  script:
+    - baselime report --c .baselime

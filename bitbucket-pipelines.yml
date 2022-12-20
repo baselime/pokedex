@@ -8,7 +8,7 @@ pipelines:
     - step:
         name: 'Plan'
         script:
-          - baselime plan --c .baselime
+          - echo no | baselime push --c .baselime
     - step:
         name: 'Push'
         # Because we use "-y" flag in push command, we want to make sure the trigger is "manual"
@@ -16,3 +16,9 @@ pipelines:
         script:
           # This will push the changes without asking for confirmation again.
           - baselime push -y --c .baselime
+    - step:
+        name: 'Report'
+        # Because we use "-y" flag in push command, we want to make sure the trigger is "manual"
+        script:
+          # This will push the changes without asking for confirmation again.
+          - baselime report --c .baselime

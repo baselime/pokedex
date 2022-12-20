@@ -5,26 +5,7 @@ pipeline {
 
     stages {
 
-        stage("Plan") {
-
-            agent {
-                docker {
-                    image 'baselime/baselime:latest'
-                    args '--entrypoint='
-                    reuseNode true
-                }
-            }
-
-            environment {
-                BASELIME_API_KEY = credentials('baselime-api-key')
-            }
-
-            steps {
-                sh 'baselime plan --c .baselime'
-            }
-        }
-
-        stage("Push") {
+        stage("Push and Report") {
 
             agent {
                 docker {
@@ -46,6 +27,7 @@ pipeline {
             steps {
                 // this step will push the changes without asking for confirmation again
                 sh 'baselime push -y --c .baselime'
+                sh 'baselime report --c .baselime'
             }
         }
     }
