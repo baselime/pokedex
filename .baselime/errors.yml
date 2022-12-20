@@ -12,15 +12,11 @@ non-200-responses:
   type: alert
   properties:
     channels:
-      - !ref boris
+      - type: email
+        targets:
+          - email@email.io
     parameters:
       duration: 30
       threshold: "> 10"
       frequency: 30
       query: !ref get-pokemon-errors
-boris:
-  type: channel
-  properties:
-    type: email
-    targets:
-      - email@email.io
