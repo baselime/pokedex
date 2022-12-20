@@ -69,7 +69,9 @@ timeouts-alert:
   type: alert
   properties:
     channels:
-      - !ref developers
+      - type: email
+        targets:
+          - boris@baselime.io
     name: Timeouts
     parameters:
       duration: 30
@@ -80,19 +82,16 @@ critical-cold-start-duration:
   type: alert
   properties:
     channels:
-      - !ref developers
+      - type: email
+        targets:
+          - boris@baselime.io
     name: Lambda cold-starts take more than 3 seconds
     parameters:
       duration: 30
       threshold: "> 3000"
       frequency: 30
       query: !ref lambda-cold-start-duration
-developers:
-  type: channel
-  properties:
-    type: email
-    targets:
-      - boris@baselime.io
+
 lambda-invocations-durations-chart:
   type: chart
   properties:
