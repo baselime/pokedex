@@ -1,17 +1,25 @@
 service: baselime-pokedex
 
 custom:
-  region: eu-west-2
+  region: eu-west-1
 
 provider:
   name: aws
-  runtime: nodejs12.x
+  runtime: nodejs16.x
   memorySize: 128
   stage: ${opt:stage}
+  timeout: 30
   region: "${self:custom.region}"
+  tracing: 
+    lambda: true
   logRetentionInDays: 1
   versionFunctions: false
-
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action: 'dynamodb:putItem'
+          Resource: !GetAtt Table.Arn
 functions:
   pokedex:
     handler: index.handler
@@ -25,3 +33,22 @@ functions:
             parameters: 
               paths: 
                 name: true
+  seed:
+    timeout: 900
+    handler: seed.handler
+    description: seeds the db
+
+resources:
+  Resources:
+    Table:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-${opt:stage}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: N
+         
+        BillingMode: PAY_PER_REQUEST
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
