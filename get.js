@@ -22,9 +22,9 @@ module.exports.handler = async (event, context) => {
   try {
 
     const rand = Math.random();
-    const threshold = name === "Bulbasaur" ? 0.5 : 0.1;
+    const threshold = name === "Fearow" ? 1 : 0;
     if (rand < threshold) {
-      console.log(JSON.stringify({ message: "Backend error", extra: { rand, requestId, name } }));
+      console.error(JSON.stringify({ message: "Backend error", extra: { rand, path: event.path, requestId, name } }));
       throw new Error("Backend error");
     }
 
@@ -32,16 +32,16 @@ module.exports.handler = async (event, context) => {
 
     if (!pokemon) {
       const data = { message: "Pokemon not found" };
-      console.log(JSON.stringify({ message: "RESPONSE", extra: { data, code: 404, requestId } }));
+      console.log(JSON.stringify({ message: "RESPONSE", extra: { endpoint: "GET /{name}", path: event.path, data, code: 404, requestId, name } }));
       return buildResponse(data, 404);
     }
 
     const data = { pokemon };
-    console.log(JSON.stringify({ message: "RESPONSE", extra: { data, code: 200, requestId } }));
+    console.log(JSON.stringify({ message: "RESPONSE", extra: { endpoint: "GET /{name}", path: event.path, data, code: 200, requestId, name } }));
     return buildResponse(data, 200);
   } catch (error) {
-    console.log(JSON.stringify({ message: "Unexpected error when getting a pokemon", extra: { error, code: 500, requestId } }));
-    console.log(JSON.stringify({ message: "RESPONSE", extra: { name, code: 500, requestId } }));
+    console.error(JSON.stringify({ message: "Unexpected error when getting a pokemon", extra: { error, code: 500, requestId, name } }));
+    console.error(JSON.stringify({ message: "RESPONSE", extra: { endpoint: "GET /{name}", path: event.path, code: 500, requestId, name } }));
     return buildResponse({ message: "Unexpected error" }, 500);
   }
 };

@@ -20,9 +20,15 @@ provider:
         - Effect: Allow
           Action: 'dynamodb:putItem'
           Resource: !GetAtt Table.Arn
+  logs:
+    restApi:
+      accessLogging: true
+      format: '{"requestTime":"$context.requestTime","requestId":"$context.requestId","httpMethod":"$context.httpMethod","path":"$context.path","resourcePath":"$context.resourcePath","status":$context.status,"responseLatency":$context.responseLatency,"xrayTraceId":"$context.xrayTraceId","integrationRequestId":"$context.integration.requestId","functionResponseStatus":"$context.integration.status","integrationLatency":"$context.integration.latency","integrationServiceStatus":"$context.integration.integrationStatus","ip":"$context.identity.sourceIp","userAgent":"$context.identity.userAgent","principalId":"$context.authorizer.principalId"}'
+      executionLogging: false # Turn off execution logs b/c they're too noisy.
+
 functions:
-  pokedex:
-    handler: index.handler
+  pokedex-get:
+    handler: get.handler
     description: ${opt:stage} - gets a pokemon from the pokedex
     events:
       - http: 
@@ -37,6 +43,15 @@ functions:
     timeout: 900
     handler: seed.handler
     description: seeds the db
+  pokedex-list:
+    handler: list.handler
+    description: ${opt:stage} - lists pokemons from the pokedex
+    events:
+      - http: 
+          path: pokemons
+          method: get 
+          cors: true
+
 
 resources:
   Resources:

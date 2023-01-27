@@ -1,0 +1,57 @@
+version: 2.1
+
+orbs:
+  slack: circleci/slack@4.1
+
+workflows:
+  version: 2
+  push-workflow:
+    jobs:
+      - plan
+      - approve_push:
+          type: approval
+          requires:
+            - plan
+      - push:
+          requires:
+            - approve_push
+      - report:
+          requires:
+            - push
+
+jobs:
+  plan:
+    resource_class: small
+    docker:
+      - image: baselime/baselime:latest
+        environment:
+          BASELIME_DOMAIN: baselime.cc
+    steps:
+      - checkout
+      - run:
+          name: Plan
+          command: echo "no" | baselime push --c .baselime
+  push:
+    resource_class: small
+    docker:
+      - image: baselime/baselime:latest
+        environment:
+          BASELIME_DOMAIN: baselime.cc
+    steps:
+      - checkout
+      - run:
+          name: Push
+          command: baselime push -y --c .baselime
+
+  report:
+    resource_class: small
+    docker:
+      - image: baselime/baselime:latest
+        environment:
+          BASELIME_DOMAIN: baselime.cc
+    working_directory: /tmp/workspace
+    steps:
+      - checkout
+      - run:
+          name: Produce Report
+          command: baselime report --c .baselime
