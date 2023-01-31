@@ -18,8 +18,19 @@ provider:
     role:
       statements:
         - Effect: Allow
-          Action: 'dynamodb:putItem'
-          Resource: !GetAtt Table.Arn
+          Action: 
+          - 'dynamodb:putItem'
+          - 'dynamodb:scan'
+          - 'dynamodb:query'
+          Resource: 
+           - !GetAtt Table.Arn
+           - !Sub '${Table.Arn}/*'
+        - Effect: Allow
+          Action: 
+          - 's3:getObject'
+          - 's3:putObject'
+          Resource: 
+           - !Sub '${Bucket.Arn}/pokedex.json'
   logs:
     restApi:
       accessLogging: true
@@ -51,6 +62,14 @@ functions:
           path: pokemons
           method: get 
           cors: true
+  pokedex-search:
+    handler: search.handler
+    description: ${opt:stage} - search the pokemon db
+    events:
+      - http: 
+          path: search
+          method: get 
+          cors: true
 
 
 resources:
@@ -60,10 +79,61 @@ resources:
       Properties:
         TableName: ${self:service}-${opt:stage}
         AttributeDefinitions:
+          - AttributeName: game
+            AttributeType: S
           - AttributeName: id
             AttributeType: N
+          - AttributeName: en
+            AttributeType: S
+          - AttributeName: jp
+            AttributeType: S
+          - AttributeName: ch
+            AttributeType: S
+          - AttributeName: fr
+            AttributeType: S
          
         BillingMode: PAY_PER_REQUEST
         KeySchema:
-          - AttributeName: id
+          - AttributeName: game
             KeyType: HASH
+          - AttributeName: id
+            KeyType: RANGE
+        LocalSecondaryIndexes:
+          - IndexName: en-name-index
+            KeySchema:
+              - AttributeName: game
+                KeyType: HASH
+              - AttributeName: en
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          - IndexName: jp-name-index
+            KeySchema:
+              - AttributeName: game
+                KeyType: HASH
+              - AttributeName: jp
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          - IndexName: ch-name-index
+            KeySchema:
+              - AttributeName: game
+                KeyType: HASH
+              - AttributeName: ch
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+          - IndexName: fr-name-index
+            KeySchema:
+              - AttributeName: game
+                KeyType: HASH
+              - AttributeName: fr
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
+    Bucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: poke-search-bucket-${opt:stage}
+
+          
