@@ -70,7 +70,10 @@ functions:
           path: search
           method: get 
           cors: true
-
+  ping:
+    handler: ping.ping
+    events:
+      - schedule: rate(1 minute)
 
 resources:
   Resources:
