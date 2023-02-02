@@ -48,7 +48,6 @@ async function ping() {
 					}
 				}),
 			);
-			console.log(res.map((el) => el.data));
 		} catch (e) {
 			console.log(e);
 		}
@@ -57,4 +56,4 @@ async function ping() {
 	}
 }
 
-module.exports = ping;
+exports.ping = ping;
