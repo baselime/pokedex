@@ -1,6 +1,11 @@
-const axios = require("axios");
-const util = require("util");
 
+const util = require("util");
+const SNS = require('aws-sdk/clients/sns')
+
+const X = require('aws-xray-sdk');
+const axios = require('axios')
+
+const sns = X.captureAWSClient(new SNS())
 const wait = util.promisify(setTimeout);
 const url = "https://a43hiiwt6d.execute-api.eu-west-1.amazonaws.com/prod/";
 
@@ -30,7 +35,7 @@ async function ping() {
 	const pokemons = ["Bulbasaur", "Spearow", "Nidorino", "Zubat", "Dugtrio"];
 
 	const promises = ["search", "scan", "get"]
-		.flatMap((el) => Array(random(10, 100)).fill(el))
+		.flatMap((el) => Array(random(1, 15)).fill(el))
 		.sort(() => Math.random() - 0.5);
 
 	for (let reqs of chunkArray(promises, 3)) {
@@ -54,6 +59,7 @@ async function ping() {
 
 		await wait(50);
 	}
+	await sns.publish({ TopicArn: process.env.TOPIC_ARN, Message: 'wow much payload' }).promise()
 }
 
 exports.ping = ping;

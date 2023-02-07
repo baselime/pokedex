@@ -31,6 +31,11 @@ provider:
           - 's3:putObject'
           Resource: 
            - !Sub '${Bucket.Arn}/pokedex.json'
+        - Effect: Allow
+          Action: 
+          - 'SNS:Publish'
+          Resource: 
+           - !Sub 'arn:aws:sns:${AWS::Region}:${AWS::AccountId}:dispatch'
   logs:
     restApi:
       accessLogging: true
@@ -74,6 +79,12 @@ functions:
     handler: ping.ping
     events:
       - schedule: rate(1 minute)
+    environment:
+      TOPIC_ARN: !Ref SNSTopicDispatch
+  echo-to-nothing:
+    handler: src/echo-to-nothing.handler
+    events:
+      - sns: dispatch
 
 resources:
   Resources:
