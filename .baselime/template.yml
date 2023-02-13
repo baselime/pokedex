@@ -4,7 +4,8 @@ lambda-invocations-durations:
     name: Duration of lambda invocations
     description: Statistics on the duration of lambda invocations across the application
     parameters:
-      dataset: logs
+      datasets:
+        - logs
       calculations:
         - MAX(@duration)
         - MIN(@duration)
@@ -18,7 +19,8 @@ lambda-cold-start-duration:
     name: Duration of lambda cold-starts
     description: Statistics on the duration of lambda cold starts across the application
     parameters:
-      dataset: logs
+      datasets:
+        - logs
       calculations:
         - MAX(@initDuration)
         - MIN(@initDuration)
@@ -37,7 +39,8 @@ lambda-cold-start-count:
       filters:
         - "@type = REPORT"
         - "@initDuration > 0"
-      dataset: logs
+      datasets:
+        - logs
       filterCombination: AND
 highest-billed-invocations:
   type: query
@@ -53,14 +56,16 @@ highest-billed-invocations:
       groupBy:
         type: number
         value: "@memorySize"
-      dataset: logs
+      datasets:
+        - logs
 timeouts:
   type: query
   properties:
     name: Invocations that Timed Out
     description: Invocations that reported a time out
     parameters:
-      dataset: logs
+      datasets:
+        - logs
       calculations:
         - COUNT
       filters:
@@ -69,76 +74,25 @@ timeouts-alert:
   type: alert
   properties:
     channels:
-      - type: email
+      - type: slack
         targets:
-          - boris@baselime.io
+          - baselime-alerts
     name: Timeouts
     parameters:
-      duration: 30
+      window: '30 mins'
       threshold: "> 5"
-      frequency: 30
+      frequency: '30 mins'
       query: !ref timeouts
 critical-cold-start-duration:
   type: alert
   properties:
     channels:
-      - type: email
+      - type: slack
         targets:
-          - boris@baselime.io
+          - baselime-alerts
     name: Lambda cold-starts take more than 3 seconds
     parameters:
-      duration: 30
+      window: '30 mins'
       threshold: "> 3000"
-      frequency: 30
+      frequency: '30 mins'
       query: !ref lambda-cold-start-duration
-
-lambda-invocations-durations-chart:
-  type: chart
-  properties:
-    name: Invocation duration
-    type: timeseries
-    parameters:
-      duration: 60
-      query: !ref lambda-invocations-durations
-lambda-cold-start-durations-chart:
-  type: chart
-  properties:
-    name: Cold-starts duration
-    type: timeseries
-    parameters:
-      duration: 60
-      query: !ref lambda-cold-start-duration
-lambda-cold-start-count-chart:
-  type: chart
-  properties:
-    name: Cold-starts count
-    type: bar
-    parameters:
-      duration: 60
-      query: !ref lambda-cold-start-count
-highest-billed-invocations-chart:
-  type: chart
-  properties:
-    name: Billed duration
-    type: timeseries
-    parameters:
-      duration: 60
-      query: !ref highest-billed-invocations
-timeouts-chart:
-  type: chart
-  properties:
-    name: Timeout
-    type: bar
-    parameters:
-      duration: 60
-      query: !ref timeouts
-main-dashboard:
-  type: dashboard
-  properties:
-    name: Lambda Logs Basics
-    charts:
-      - !ref lambda-invocations-durations-chart
-      - !ref lambda-cold-start-durations-chart
-      - !ref lambda-cold-start-count-chart
-      - !ref highest-billed-invocations-chart
-      - !ref timeouts-chart

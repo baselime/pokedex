@@ -2,21 +2,41 @@ error-getting-pokemons:
   type: query
   properties:
     parameters:
-      dataset: logs
+      datasets:
+        - logs
       filters:
         - "@message.extra.code != 200"
       calculations:
         - COUNT
     name: Error when getting a pokemon
+
+lambda-errors:                                                                           
+      type: query                                                                            
+      properties:                                                                            
+        parameters:                                                                          
+          datasets:                                                                          
+            - lambda-logs                                                                    
+          calculations:                                                                      
+            - COUNT                                                                          
+          filters:                                                                           
+            - LogLevel = ERROR                                                               
+          groupBy:                                                                           
+            limit: 10                                                                        
+            orderBy: COUNT                                                                   
+            type: string                                                                     
+            value: $baselime.namespace                                                       
+        name: Events with LogLevel ERROR                                                     
+        description: Count of the number of events with LogLevel ERROR 
+
 non-200-responses:
   type: alert
   properties:
     channels:
-      - type: email
+      - type: slack
         targets:
-          - email@email.io
+          - baselime-alerts
     parameters:
-      duration: 30
-      threshold: "> 10"
-      frequency: 30
-      query: !ref get-pokemon-errors
+      window: '10 mins'
+      threshold: "> 15"
+      frequency: '30 mins'
+      query: !ref error-getting-pokemons

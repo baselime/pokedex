@@ -32,7 +32,7 @@ function chunkArray(array, chunkSize) {
 }
 
 async function ping() {
-	const pokemons = ["Bulbasaur", "Spearow", "Nidorino", "Zubat", "Dugtrio"];
+	const pokemons = ["Bulbasaur", "Spearow", "Nidorino", "Zubat", "Dugtrio", "Fearow"];
 
 	const promises = ["search", "scan", "get"]
 		.flatMap((el) => Array(random(1, 15)).fill(el))

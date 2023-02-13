@@ -21,19 +21,20 @@ module.exports.handler = async (event, context) => {
 	console.log(
 		JSON.stringify({ message: "REQUEST", extra: { event, name, requestId } }),
 	);
-	try {
-		const rand = Math.random();
-		const threshold = name === "Fearow" ? 1 : 0;
-		if (rand < threshold) {
-			console.error(
-				JSON.stringify({
-					message: "Backend error",
-					extra: { rand, path: event.path, requestId, name },
-				}),
-			);
-			throw new Error("Backend error");
-		}
 
+	const rand = Math.random();
+	const threshold = name === "Fearow" ? 1 : 0;
+	if (rand < threshold) {
+		console.error(
+			JSON.stringify({
+				message: "Backend error",
+				extra: { rand, path: event.path, requestId, name },
+			}),
+		);
+		throw new Error("Backend error");
+	}
+
+	try {
 		const result = await db
 			.query({
 				TableName: "baselime-pokedex-prod",
