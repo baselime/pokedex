@@ -56,13 +56,13 @@ async function ping() {
 	for (let req of requests) {
 		try {
 			if (req === "search") {
-				await search(pokemons[random(0, pokemons.length - 1)]);
+				await search(pokemons[random(0, pokemons.length - 1)]).catch(e => console.log(e));
 			}
 			if (req === "get") {
-				await get(pokemons[random(0, pokemons.length - 1)]);
+				await get(pokemons[random(0, pokemons.length - 1)]).catch(e => console.log(e));
 			}
 			if (req === "scan") {
-				await scan();
+				await scan().catch(e => console.log(e));
 			}
 		} catch (e) {
 			console.log(e);
