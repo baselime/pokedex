@@ -43,9 +43,11 @@ async function ping() {
 		"Mew",
 		"Squirtle",
 		"Pikachu",
+		"Pikachuuuu",
+		"SpongeBob",
+		"tom-and-jerry",
+		"Popeye",
 		"Wooper",
-		"Arbock",
-		"Riachu",
 		"Sandslash",
 	];
 
