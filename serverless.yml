@@ -76,6 +76,7 @@ functions:
           method: get 
           cors: true
   ping:
+    timeout: 90
     handler: ping.ping
     events:
       - schedule: rate(1 minute)
