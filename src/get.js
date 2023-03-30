@@ -1,7 +1,11 @@
 "use strict";
 
-const pokedex = require("./data/pokedex.json");
+const logger = require("@baselime/logger");
+const errorMessage = require("./error");
+const { increment} = require("./counter");
+const kinesis = require('./kinesis');
 const db = require("./db");
+
 function buildResponse(data, code) {
 	return {
 		statusCode: code,
@@ -18,20 +22,28 @@ module.exports.handler = async (event, context) => {
 	const requestId = context.awsRequestId;
 	const { name } = event.pathParameters;
 	const lang = event.queryStringParameters?.lang || "en";
-	console.log(
-		JSON.stringify({ message: "REQUEST", extra: { event, name, requestId } }),
+	logger.info(
+		`${event.requestContext.httpMethod} ${event.requestContext.path} - ${event.requestContext.requestId}`,
+		{
+			queryString: event.queryStringParameters,
+			requestId: event.requestContext.requestId,
+		},
 	);
-
+	await kinesis.putRecord({
+		StreamName: process.env.KINESIS || 'poke-search-stream-prod',
+		Data: JSON.stringify(event.requestContext),
+		PartitionKey: event.requestContext.requestId,
+	}).promise();
+	await increment();
 	const rand = Math.random();
 	const threshold = name === "Fearow" ? 1 : 0;
 	if (rand < threshold) {
-		console.error(
-			JSON.stringify({
-				message: "Backend error",
-				extra: { rand, path: event.path, requestId, name },
-			}),
-		);
-		throw new Error("Backend error");
+		const message = errorMessage();
+		logger.error(message, {
+			extra: { rand, path: event.path, requestId, name },
+		});
+		
+		throw new Error(message);
 	}
 
 	try {
@@ -52,56 +64,25 @@ module.exports.handler = async (event, context) => {
 			.promise();
 		if (!result.Items[0]) {
 			const data = { message: "Pokemon not found" };
-			console.log(
-				JSON.stringify({
-					message: "RESPONSE",
-					extra: {
-						endpoint: "GET /{name}",
-						path: event.path,
-						data,
-						code: 404,
-						requestId,
-						name,
-					},
-				}),
-			);
+			logger.error(data.message, {
+				lang,
+				name
+			});
 			return buildResponse(data, 404);
 		}
 
 		const data = { pokemon: result.Items[0] };
-		console.log(
-			JSON.stringify({
-				message: "RESPONSE",
-				extra: {
-					endpoint: "GET /{name}",
-					path: event.path,
-					data,
-					code: 200,
-					requestId,
-					name,
-				},
-			}),
-		);
+		logger.info("Pokemon Found", {
+			data,
+			search: name,
+			lang
+		})
 		return buildResponse(data, 200);
 	} catch (error) {
-		console.error(
-			JSON.stringify({
-				message: "Unexpected error when getting a pokemon",
-				extra: { error, code: 500, requestId, name },
-			}),
-		);
-		console.error(
-			JSON.stringify({
-				message: "RESPONSE",
-				extra: {
-					endpoint: "GET /{name}",
-					path: event.path,
-					code: 500,
-					requestId,
-					name,
-				},
-			}),
-		);
-		return buildResponse({ message: "Unexpected error" }, 500);
+		const message = errorMessage();
+		logger.error(message, {
+			message: error.message,
+		})
+		return buildResponse({ message: message }, 500);
 	}
 };

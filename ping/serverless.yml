@@ -1,0 +1,36 @@
+service: baselime-pokedex-ping
+
+custom:
+  region: eu-west-2
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  memorySize: 128
+  stage: ${opt:stage}
+  timeout: 30
+  region: "${self:custom.region}"
+  logRetentionInDays: 1
+  versionFunctions: false
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action: 
+          - 'SNS:Publish'
+          Resource: 
+           - arn:aws:sns:eu-west-1:522104763258:poke-topic-prod
+  logs:
+    restApi:
+      accessLogging: true
+      format: '{"requestTime":"$context.requestTime","requestId":"$context.requestId","httpMethod":"$context.httpMethod","path":"$context.path","resourcePath":"$context.resourcePath","status":$context.status,"responseLatency":$context.responseLatency,"xrayTraceId":"$context.xrayTraceId","integrationRequestId":"$context.integration.requestId","functionResponseStatus":"$context.integration.status","integrationLatency":"$context.integration.latency","integrationServiceStatus":"$context.integration.integrationStatus","ip":"$context.identity.sourceIp","userAgent":"$context.identity.userAgent","principalId":"$context.authorizer.principalId"}'
+      executionLogging: false # Turn off execution logs b/c they're too noisy.
+
+functions:
+  ping:
+    timeout: 90
+    handler: ping.ping
+    events:
+      - schedule: rate(1 minute)
+    environment:
+      TOPIC_ARN: arn:aws:sns:eu-west-1:522104763258:poke-topic-prod

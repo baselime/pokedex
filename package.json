@@ -2,20 +2,22 @@
   "name": "demo",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
     "deploy": "serverless deploy --stage prod"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@baselime/logger": "^0.0.3",
     "@lyrasearch/lyra": "^0.4.5",
     "aws-xray-sdk": "^3.4.1",
-    "axios": "^0.27.2",
-    "logger": "github:baselime/logger"
+    "axios": "^0.27.2"
   },
   "devDependencies": {
+    "@types/aws-lambda": "^8.10.114",
+    "esbuild": "^0.17.14",
     "progress": "^2.0.3",
-    "serverless": "^3.21.0"
+    "serverless": "^3.21.0",
+    "serverless-esbuild": "^1.43.0"
   }
 }

@@ -3,6 +3,12 @@ service: baselime-pokedex
 custom:
   region: eu-west-1
 
+package:
+  individually: true
+
+plugins:
+  - serverless-esbuild
+
 provider:
   name: aws
   runtime: nodejs16.x
@@ -14,6 +20,8 @@ provider:
     lambda: true
   logRetentionInDays: 1
   versionFunctions: false
+  environment:
+    KINESIS: !Ref Stream
   iam:
     role:
       statements:
@@ -27,6 +35,12 @@ provider:
            - !Sub '${Table.Arn}/*'
         - Effect: Allow
           Action: 
+          - 'dynamodb:getItem'
+          - 'dynamodb:updateItem'
+          Resource: 
+           - !GetAtt Counter.Arn
+        - Effect: Allow
+          Action: 
           - 's3:getObject'
           - 's3:putObject'
           Resource: 
@@ -35,7 +49,12 @@ provider:
           Action: 
           - 'SNS:Publish'
           Resource: 
-           - !Sub 'arn:aws:sns:${AWS::Region}:${AWS::AccountId}:dispatch'
+           - !Ref Topic
+        - Effect: Allow
+          Action:
+            - 'Kinesis:PutRecord'
+          Resource:
+            - !GetAtt Stream.Arn
   logs:
     restApi:
       accessLogging: true
@@ -44,11 +63,11 @@ provider:
 
 functions:
   pokedex-get:
-    handler: get.handler
+    handler: ./src/get.handler
     description: ${opt:stage} - gets a pokemon from the pokedex
     events:
       - http: 
-          path: pokemons/{name}
+          path: pokemon/{name}
           method: get 
           cors: true
           request: 
@@ -57,38 +76,63 @@ functions:
                 name: true
   seed:
     timeout: 900
-    handler: seed.handler
+    handler: ./seed.handler
     description: seeds the db
   pokedex-list:
-    handler: list.handler
-    description: ${opt:stage} - lists pokemons from the pokedex
+    handler: src/list.handler
+    description: ${opt:stage} - lists pokemon from the pokedex
     events:
       - http: 
-          path: pokemons
+          path: pokemon
           method: get 
           cors: true
   pokedex-search:
-    handler: search.handler
+    handler: ./src/search.handler
     description: ${opt:stage} - search the pokemon db
     events:
       - http: 
           path: search
           method: get 
           cors: true
-  ping:
-    timeout: 90
-    handler: ping.ping
+  send-email:
+    handler: src/send-email.handler
+    destinations:
+      onFailure: arn:aws:sqs:eu-west-1:522104763258:poke-dql-prod
     events:
-      - schedule: rate(1 minute)
-    environment:
-      TOPIC_ARN: !Ref SNSTopicDispatch
-  echo-to-nothing:
-    handler: src/echo-to-nothing.handler
+      - sqs:
+          arn: !GetAtt Queue.Arn
+  stats:
+    handler: ./src/stats.handler
     events:
-      - sns: dispatch
+      - http: 
+          path: stats
+          method: get 
+          cors: true
+  stream:
+      handler: ./src/stream.handler
+      events:
+        - stream:
+            type: kinesis
+            arn: !GetAtt Stream.Arn
+            batchSize: 5
+            startingPosition: LATEST
+            maximumRetryAttempts: 1
+            enabled: true
 
 resources:
   Resources:
+    Counter:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-${opt:stage}-counter
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+         
+        BillingMode: PAY_PER_REQUEST
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
     Table:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -150,5 +194,43 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: poke-search-bucket-${opt:stage}
-
-          
+    Queue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName:  poke-search-queue-${opt:stage}
+    TopicSubscription:
+      Type: AWS::SNS::Subscription
+      Properties:
+        Endpoint: !GetAtt Queue.Arn
+        TopicArn: !Ref Topic
+        Protocol: sqs
+    Topic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: poke-topic-${opt:stage}
+        TracingConfig: Active
+    QueuePolicy:
+      Type: AWS::SQS::QueuePolicy
+      Properties:
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Sid: "allow-sns-messages"
+              Effect: Allow
+              Principal: "*"
+              Resource: !GetAtt Queue.Arn
+              Action: "SQS:SendMessage"
+              Condition:
+                ArnEquals:
+                  "aws:SourceArn": !Ref Topic
+        Queues:
+          - !Ref Queue
+    DLQ:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: poke-dql-${opt:stage}
+    Stream:
+      Type: AWS::Kinesis::Stream
+      Properties:
+        Name: poke-search-stream-${opt:stage}
+        ShardCount: 1
