@@ -54,5 +54,5 @@ async function command(e, context) {
  * @returns
  */
 exports.handler = async (e, context) => {
-	await logger.bindFunction(command, context.awsRequestId)(e);
+	await logger.bindFunction(command, context.awsRequestId)(e, context);
 };
