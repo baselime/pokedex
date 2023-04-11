@@ -1,6 +1,5 @@
 "use strict";
-
-const logger = require("@baselime/logger");
+const { wrap, logger } = require("@baselime/lambda-logger");
 const errorMessage = require("./error");
 const { increment} = require("./counter");
 const kinesis = require('./kinesis');
@@ -18,7 +17,7 @@ function buildResponse(data, code) {
 	};
 }
 
-module.exports.handler = async (event, context) => {
+module.exports.handler = wrap(async (event, context) => {
 	const requestId = context.awsRequestId;
 	const { name } = event.pathParameters;
 	const lang = event.queryStringParameters?.lang || "en";
@@ -41,7 +40,7 @@ module.exports.handler = async (event, context) => {
 		const message = errorMessage();
 		logger.error(message, {
 			extra: { rand, path: event.path, requestId, name },
-		});
+		}, Error(message));
 		
 		throw new Error(message);
 	}
@@ -67,7 +66,7 @@ module.exports.handler = async (event, context) => {
 			logger.error(data.message, {
 				lang,
 				name
-			});
+			}, Error(data.message));
 			return buildResponse(data, 404);
 		}
 
@@ -80,9 +79,7 @@ module.exports.handler = async (event, context) => {
 		return buildResponse(data, 200);
 	} catch (error) {
 		const message = errorMessage();
-		logger.error(message, {
-			message: error.message,
-		})
+		logger.error(message, error)
 		return buildResponse({ message: message }, 500);
 	}
-};
+});

@@ -8,6 +8,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@baselime/lambda-logger": "^0.0.2",
     "@baselime/logger": "^0.0.3",
     "@lyrasearch/lyra": "^0.4.5",
     "aws-xray-sdk": "^3.4.1",
