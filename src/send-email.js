@@ -8,7 +8,7 @@ const kinesis = require("./kinesis");
  * @param {import("aws-lambda").SQSEvent} e
  * @returns
  */
-async function command(e) {
+async function command(e, context) {
 	for (const record of e.Records) {
 		const { Message, MessageAttributes } = JSON.parse(record.body);
 		await increment();
