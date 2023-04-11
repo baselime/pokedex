@@ -16,7 +16,7 @@ function buildResponse(data, code) {
 	};
 }
 
-module.exports.handler = async (event) => {
+async function command(event) {
 	logger.info(
 		`${event.requestContext.httpMethod} ${event.requestContext.path} - ${event.requestContext.requestId}`,
 		{
@@ -51,4 +51,8 @@ module.exports.handler = async (event) => {
 		})
 		return buildResponse({ message: message }, 500);
 	}
+}
+
+module.exports.handler = async (event, context) => {
+	await logger.bindFunction(command, context.awsRequestId)(event);
 };

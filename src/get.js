@@ -17,7 +17,7 @@ function buildResponse(data, code) {
 	};
 }
 
-module.exports.handler = wrap(async (event, context) => {
+async function command(event, context) {
 	const requestId = context.awsRequestId;
 	const { name } = event.pathParameters;
 	const lang = event.queryStringParameters?.lang || "en";
@@ -82,4 +82,4 @@ module.exports.handler = wrap(async (event, context) => {
 		logger.error(message, error)
 		return buildResponse({ message: message }, 500);
 	}
-});
+}
