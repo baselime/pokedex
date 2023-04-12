@@ -1,5 +1,5 @@
 "use strict";
-const logger = require("@baselime/logger");
+const {logger, wrap } = require("@baselime/lambda-logger");
 const errorMessage = require("./error");
 const db = require("./db");
 const { increment } = require("./counter");
@@ -17,13 +17,8 @@ function buildResponse(data, code) {
 	};
 }
 
-/**
- *
- * @param {import("aws-lambda").APIGatewayProxyEvent} event
- * @param {import("aws-lambda").Context} context
- * @returns
- */
-async function command(event, context) {
+
+exports.handler = wrap(async function(event, context) {
 	const requestId = context.awsRequestId;
 
 	const limit = Number(event.queryStringParameters?.limit) || numPerPage;
@@ -64,14 +59,4 @@ async function command(event, context) {
 		})
 		return buildResponse({ message: message }, 500);
 	}
-}
-
-/**
- *
- * @param {import("aws-lambda").APIGatewayProxyEvent} event
- * @param {import("aws-lambda").Context} context
- * @returns
- */
-module.exports.handler = async (event, context) => {
-	await logger.bindFunction(command, context.awsRequestId)(event, context);
-};
+});

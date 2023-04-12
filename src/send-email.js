@@ -1,14 +1,9 @@
 const X = require("aws-xray-sdk");
-const logger = require("@baselime/logger");
+const { logger, wrap } = require("@baselime/lambda-logger");
 const { increment } = require("./counter");
 const kinesis = require("./kinesis");
 
-/**
- *
- * @param {import("aws-lambda").SQSEvent} e
- * @returns
- */
-async function command(e, context) {
+exports.handler = wrap(async function(e, context) {
 	for (const record of e.Records) {
 		const { Message, MessageAttributes } = JSON.parse(record.body);
 		await increment();
@@ -45,14 +40,4 @@ async function command(e, context) {
 		subb?.addMetadata("response", "OK");
 		subb?.close();
 	}
-}
-
-/**
- *
- * @param {import("aws-lambda").SQSEvent} e
- * @param {import("aws-lambda").Context} context
- * @returns
- */
-exports.handler = async (e, context) => {
-	await logger.bindFunction(command, context.awsRequestId)(e, context);
-};
+});
