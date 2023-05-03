@@ -18,6 +18,7 @@ provider:
   region: "${self:custom.region}"
   tracing: 
     lambda: true
+    apiGateway: true
   logRetentionInDays: 1
   versionFunctions: false
   environment:
