@@ -2,7 +2,7 @@
 const { create, insertBatch, search } = require("@lyrasearch/lyra");
 const AWSXRay = require("aws-xray-sdk");
 const s3 = require("./s3");
-const logger = require("@baselime/logger");
+const { logger, wrap } = require("@baselime/lambda-logger");
 const { increment } = require("./counter");
 const errorMessage = require("./error");
 const kinesis = require('./kinesis');
@@ -20,13 +20,7 @@ function buildResponse(data, code) {
 }
 let lyra;
 
-/**
- *
- * @param {import("aws-lambda").APIGatewayProxyEvent} event
- * @param {import("aws-lambda").Context} context
- * @returns
- */
-async function command(event, context) {
+exports.handler = wrap(async function (event, context) {
 	const requestId = context.awsRequestId;
 	const term = event.queryStringParameters?.term || "Bulbasaur";
 
@@ -152,14 +146,4 @@ async function command(event, context) {
 		});
 		return buildResponse({ message: message }, 500);
 	}
-}
-
-/**
- *
- * @param {import("aws-lambda").APIGatewayProxyEvent} event
- * @param {import("aws-lambda").Context} context
- * @returns
- */
-module.exports.handler = async (event, context) => {
-	await logger.bindFunction(command, context.awsRequestId)(event, context);
-};
+});

@@ -1,6 +1,19 @@
+// @ts-nocheck
 "use strict";
-
-const logger = require("@baselime/logger");
+// @ts-ignore
+const { wrap, logger } = require("@baselime/lambda-logger");
+import {
+	// @ts-ignore
+	CacheGet,
+	// @ts-ignore
+	CreateCache,
+	// @ts-ignore
+	CacheSet,
+	CacheClient,
+	Configurations,
+	CredentialProvider,
+  } from '@gomomento/sdk';
+  const AWSXRay = require("aws-xray-sdk");
 const errorMessage = require("./error");
 const { increment} = require("./counter");
 const kinesis = require('./kinesis');
@@ -18,7 +31,7 @@ function buildResponse(data, code) {
 	};
 }
 
-async function command(event, context) {
+exports.handler = wrap(async function(event, context) {
 	const requestId = context.awsRequestId;
 	const { name } = event.pathParameters;
 	const lang = event.queryStringParameters?.lang || "en";
@@ -35,13 +48,14 @@ async function command(event, context) {
 		PartitionKey: event.requestContext.requestId,
 	}).promise();
 	await increment();
+	
 	const rand = Math.random();
 	const threshold = name === "Fearow" ? 1 : 0;
 	if (rand < threshold) {
 		const message = errorMessage();
 		logger.error(message, {
 			extra: { rand, path: event.path, requestId, name },
-		});
+		}, Error(message));
 		
 		throw new Error(message);
 	}
@@ -62,15 +76,17 @@ async function command(event, context) {
 				},
 			})
 			.promise();
+		// @ts-ignore
 		if (!result.Items[0]) {
 			const data = { message: "Pokemon not found" };
 			logger.error(data.message, {
 				lang,
 				name
-			});
+			}, Error(data.message));
 			return buildResponse(data, 404);
 		}
 
+		// @ts-ignore
 		const data = { pokemon: result.Items[0] };
 		logger.info("Pokemon Found", {
 			data,
@@ -80,13 +96,8 @@ async function command(event, context) {
 		return buildResponse(data, 200);
 	} catch (error) {
 		const message = errorMessage();
-		logger.error(message, {
-			message: error.message,
-		})
+		// @ts-ignore
+		logger.error(message, error)
 		return buildResponse({ message: message }, 500);
 	}
-}
-
-module.exports.handler = async (event, context) => {
-	await logger.bindFunction(command, context.awsRequestId)(event, context);
-};
+});

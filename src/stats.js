@@ -1,6 +1,6 @@
 "use strict";
 
-const logger = require("@baselime/logger");
+const { logger, wrap } = require("@baselime/lambda-logger");
 const errorMessage = require("./error");
 const db = require("./db");
 const kinesis = require('./kinesis');
@@ -16,7 +16,7 @@ function buildResponse(data, code) {
 	};
 }
 
-async function command(event) {
+exports.handler = wrap(async function (event) {
 	logger.info(
 		`${event.requestContext.httpMethod} ${event.requestContext.path} - ${event.requestContext.requestId}`,
 		{
@@ -51,8 +51,4 @@ async function command(event) {
 		})
 		return buildResponse({ message: message }, 500);
 	}
-}
-
-module.exports.handler = async (event, context) => {
-	await logger.bindFunction(command, context.awsRequestId)(event);
-};
+});
