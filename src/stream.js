@@ -3,7 +3,7 @@ import middy from "@middy/core";
 
 exports.handler = middy()
 	.use(baselimeMiddyMiddleware())
-	.handler(function (e, context) {
+	.handler(async function (e, context) {
 		const requests = e.Records.map((el) =>
 			Buffer.from(el.kinesis.data, "base64").toString("utf-8"),
 		);

@@ -16,13 +16,12 @@ provider:
   stage: ${opt:stage}
   timeout: 30
   region: "${self:custom.region}"
-  tracing: 
-    lambda: true
-    apiGateway: true
   logRetentionInDays: 1
   versionFunctions: false
   environment:
     KINESIS: !Ref Stream
+  tags:
+    "baselime:tracing": "true"
   iam:
     role:
       statements:
