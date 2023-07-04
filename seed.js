@@ -27,7 +27,16 @@ async function seedDb() {
 				},
 			})
 			.promise();
+
+		await db.put({
+			TableName: "baselime-pokedex-prod-counter",
+			Item: {
+				id: "pokedex",
+				count: 1
+			}
+		}).promise()
 	}
 }
 
+seedDb();
 exports.handler = seedDb;

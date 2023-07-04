@@ -4,7 +4,7 @@ const SNS = require("aws-sdk/clients/sns");
 const axios = require("axios");
 const sns = new SNS({ region: 'eu-west-1' });
 const wait = util.promisify(setTimeout);
-const url = "https://5lgsdxdtuf.execute-api.eu-west-1.amazonaws.com/prod/";
+const url = "https://sfmcfkwy9l.execute-api.eu-west-1.amazonaws.com/prod/";
 
 function random(min, max) {
 	return Math.ceil(Math.random() * (max - min) + min);

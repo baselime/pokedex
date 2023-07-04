@@ -1,6 +1,5 @@
 "use strict";
 const { create, insertBatch, search } = require("@lyrasearch/lyra");
-const AWSXRay = require("aws-xray-sdk");
 const s3 = require("./s3");
 const { logger, wrap } = require("@baselime/lambda-logger");
 const { increment } = require("./counter");
@@ -38,10 +37,8 @@ exports.handler = wrap(async function (event, context) {
 	}).promise();
 	await increment();
 	try {
-		const segment = AWSXRay.getSegment();
 		if (!lyra) {
 			//returns the facade segment
-			const subsegment = segment?.addNewSubsegment("creating lyra");
 			let data;
 
 			try {
@@ -109,8 +106,6 @@ exports.handler = wrap(async function (event, context) {
 					},
 				},
 			});
-			const subsubsegment = subsegment?.addNewSubsegment("feeding lyra");
-			subsegment?.addAttribute("pokedexSize", data.pokemon.length);
 			await insertBatch(
 				lyra,
 				data.pokemon.map((el) => {
@@ -118,21 +113,11 @@ exports.handler = wrap(async function (event, context) {
 					return el;
 				}),
 			);
-			subsubsegment?.close();
-
-			subsegment?.close();
 		}
-
-		const subsegment = segment?.addNewSubsegment("searching lyra");
-		subsegment?.addMetadata("term", term);
-
 		const searchResult = await search(lyra, {
 			term,
 			properties: "*",
 		});
-		subsegment?.addAttribute("matched", searchResult.count);
-		subsegment?.close();
-
 		logger.info("Pokemon Found", {
 			data: searchResult.hits,
 			search: term
