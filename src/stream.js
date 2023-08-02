@@ -1,3 +1,4 @@
+import('./signing-workaround');
 import { logger, baselimeMiddyMiddleware } from "@baselime/lambda-logger";
 import middy from "@middy/core";
 

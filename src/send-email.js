@@ -1,3 +1,4 @@
+require('./signing-workaround');
 const X = require("aws-xray-sdk");
 const { logger, wrap } = require("@baselime/lambda-logger");
 const { increment } = require("./counter");

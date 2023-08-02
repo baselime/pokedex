@@ -1,4 +1,5 @@
 "use strict";
+require('./signing-workaround');
 const {logger, wrap } = require("@baselime/lambda-logger");
 const errorMessage = require("./error");
 const db = require("./db");

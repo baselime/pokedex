@@ -20,6 +20,7 @@ provider:
   versionFunctions: false
   environment:
     KINESIS: !Ref Stream
+    AWS_SDK_INTERNALS: true
   tags:
     "baselime:tracing": "true"
   iam:

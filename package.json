@@ -12,6 +12,7 @@
     "@gomomento/sdk": "^1.8.2",
     "@lyrasearch/lyra": "^0.4.5",
     "@middy/core": "^4.3.0",
+    "aws-sdk": "^2.1423.0",
     "aws-xray-sdk": "^3.4.1",
     "axios": "^0.27.2"
   },
