@@ -1,6 +1,5 @@
 // @ts-nocheck
 "use strict";
-require('./signing-workaround');
 // @ts-ignore
 const { wrap, logger } = require("@baselime/lambda-logger");
 import {

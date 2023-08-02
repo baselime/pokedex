@@ -1,4 +1,3 @@
-require('./signing-workaround');
 const db = require("./db");
 
 exports.increment = function increment() {

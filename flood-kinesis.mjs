@@ -10,7 +10,7 @@ process.stdin.on('keypress', async (str, key) => {
     process.exit();
   } else {
     // generate a bunch of noisey data as a uint8array
-    const noise = new Uint8Array(100000);
+    const noise = new Uint8Array(1000000);
     for (let i = 0; i < noise.length; i++) {
       noise[i] = Math.random() * 256;
     }

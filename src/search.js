@@ -1,5 +1,4 @@
 "use strict";
-require('./signing-workaround');
 const { create, insertBatch, search } = require("@lyrasearch/lyra");
 const s3 = require("./s3");
 const { logger, wrap } = require("@baselime/lambda-logger");
