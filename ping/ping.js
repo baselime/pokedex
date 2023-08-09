@@ -6,12 +6,8 @@ const sns = new SNS({ region: 'eu-west-1' });
 const wait = util.promisify(setTimeout);
 const url = "https://sfmcfkwy9l.execute-api.eu-west-1.amazonaws.com/prod/";
 
-function random(min, max, bias, influence) {
+function random(min, max) {
 	const rand = Math.ceil(Math.random() * (max - min) + min);
-	if (bias !== undefined && influence !== undefined) {
-		const mix = Math.random() * influence;
-		return Math.ceil(rand * (1 - mix) + bias * mix);
-	}
 	return rand;
 }
 function search(term) {
@@ -93,17 +89,17 @@ async function ping() {
 		"Abra",
 	];
 
-	const requests = ["search", "scan", "get", "get", "get", "get"].flatMap((el) => Array(random(1, 15)).fill(el)).sort(() => Math.random() - 0.5);
-	const pikachuIndex = pokemons.findIndex(p => p === "Pikachu");
-	const spongeBobIndex = pokemons.findIndex(p => p === "SpongeBob");
+	const requests = ["search", "scan", "get", "get", "get", "get", "get", "get", "get", "get"].flatMap((el) => Array(random(1, 15)).fill(el)).sort(() => Math.random() - 0.5);
 
 	for (let req of requests) {
 		try {
 			if (req === "search") {
-				await search(pokemons[random(0, pokemons.length - 1, pikachuIndex, 1)]).catch((e) => { });
+				const modifiedArray = [...Array(Math.ceil(pokemons.length / 8)).fill("Pikachu"), ...pokemons];
+				await search(modifiedArray[random(0, pokemons.length - 1)]).catch((e) => { });
 			}
 			if (req === "get") {
-				await get(pokemons[random(0, pokemons.length - 1, spongeBobIndex, 0.5)]).catch((e) => { });
+				const modifiedArray = [...Array(Math.ceil(pokemons.length / 8)).fill("SpongeBob"), ...Array(Math.ceil(pokemons.length / 8)).fill("Bulbasaur"), ...pokemons];
+				await get(modifiedArray[random(0, pokemons.length - 1)]).catch((e) => { });
 			}
 			if (req === "scan") {
 				await scan().catch((e) => { });
