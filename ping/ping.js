@@ -148,6 +148,6 @@ async function ping() {
 // 			},
 // 		})
 // 		.promise();
-// }
+}
 
 exports.ping = ping;
