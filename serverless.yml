@@ -118,6 +118,16 @@ functions:
             startingPosition: LATEST
             maximumRetryAttempts: 1
             enabled: true
+  
+  dispatcher:
+      handler: ./src/dispatcher.handler
+      events:
+        - sns:
+            arn: !Ref Topic
+            topicName: poke-topic-${opt:stage}
+            filterPolicy:
+              type:
+                - pokemon
 
 resources:
   Resources:
@@ -204,6 +214,9 @@ resources:
         Endpoint: !GetAtt Queue.Arn
         TopicArn: !Ref Topic
         Protocol: sqs
+        FilterPolicy:
+          type:
+            - email.send
     Topic:
       Type: AWS::SNS::Topic
       Properties:

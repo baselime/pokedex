@@ -134,20 +134,20 @@ async function ping() {
 
 	const rand = random(0, messages.length - 1, Math.round(messages.length / 2), 1);
 
-	await sns
-		.publish({
-			TopicArn: process.env.TOPIC_ARN || "arn:aws:sns:eu-west-1:522104763258:poke-topic-prod",
+// 	await sns
+// 		.publish({
+// 			TopicArn: process.env.TOPIC_ARN || "arn:aws:sns:eu-west-1:522104763258:poke-topic-prod",
 
-			Message: JSON.stringify({
-				to: "help@baselime.io",
-				from: "ash@pokemon.com",
-				message: messages[rand],
-			}),
-			MessageAttributes: {
-				type: { DataType: "String", StringValue: "email.send" },
-			},
-		})
-		.promise();
-}
+// 			Message: JSON.stringify({
+// 				to: "help@baselime.io",
+// 				from: "ash@pokemon.com",
+// 				message: messages[rand],
+// 			}),
+// 			MessageAttributes: {
+// 				type: { DataType: "String", StringValue: "email.send" },
+// 			},
+// 		})
+// 		.promise();
+// }
 
 exports.ping = ping;
