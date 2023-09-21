@@ -12,12 +12,16 @@ import {
 	CacheClient,
 	Configurations,
 	CredentialProvider,
-  } from '@gomomento/sdk';
-  const AWSXRay = require("aws-xray-sdk");
+} from '@gomomento/sdk';
+const AWSXRay = require("aws-xray-sdk");
 const errorMessage = require("./error");
-const { increment} = require("./counter");
+const { increment } = require("./counter");
 const kinesis = require('./kinesis');
 const db = require("./db");
+
+const SNS = require("aws-sdk/clients/sns");
+
+const sns = new SNS({ region: 'eu-west-1' });
 
 function buildResponse(data, code) {
 	return {
@@ -31,7 +35,7 @@ function buildResponse(data, code) {
 	};
 }
 
-exports.handler = wrap(async function(event, context) {
+exports.handler = wrap(async function (event, context) {
 	const requestId = context.awsRequestId;
 	const { name } = event.pathParameters;
 	const lang = event.queryStringParameters?.lang || "en";
@@ -42,13 +46,7 @@ exports.handler = wrap(async function(event, context) {
 			requestId: event.requestContext.requestId,
 		},
 	);
-	await kinesis.putRecord({
-		StreamName: process.env.KINESIS || 'poke-search-stream-prod',
-		Data: JSON.stringify(event.requestContext),
-		PartitionKey: event.requestContext.requestId,
-	}).promise();
-	await increment();
-	
+
 	const rand = Math.random();
 	const threshold = name === "Fearow" ? 1 : 0;
 	if (rand < threshold) {
@@ -56,7 +54,7 @@ exports.handler = wrap(async function(event, context) {
 		logger.error(message, {
 			extra: { rand, path: event.path, requestId, name },
 		}, Error(message));
-		
+
 		throw new Error(message);
 	}
 
@@ -87,12 +85,15 @@ exports.handler = wrap(async function(event, context) {
 		}
 
 		// @ts-ignore
-		const data = { pokemon: result.Items[0] };
+		const pokemon = result.Items[0]; 
+		const data = { pokemon };
 		logger.info("Pokemon Found", {
 			data,
-			search: name,
-			lang
-		})
+			name,
+			lang,
+		});
+
+		await signalToSns(pokemon);
 		return buildResponse(data, 200);
 	} catch (error) {
 		const message = errorMessage();
@@ -101,3 +102,19 @@ exports.handler = wrap(async function(event, context) {
 		return buildResponse({ message: message }, 500);
 	}
 });
+
+async function signalToSns(pokemon) {
+	await sns
+		.publish({
+			TopicArn: process.env.TOPIC_ARN || "arn:aws:sns:eu-west-1:522104763258:poke-topic-prod",
+
+			Message: JSON.stringify({
+				event: "POKEMON_FOUND",
+				message: pokemon,
+			}),
+			MessageAttributes: {
+				type: { DataType: "String", StringValue: "pokemon" },
+			},
+		})
+		.promise();
+}
