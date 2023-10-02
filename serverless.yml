@@ -22,6 +22,9 @@ provider:
     KINESIS: !Ref Stream
   tags:
     "baselime:tracing": "true"
+  tracing:
+    lambda: true
+    apiGateway: true
   iam:
     role:
       statements:
