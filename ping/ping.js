@@ -89,8 +89,8 @@ async function ping() {
 		"Abra",
 	];
 
-	const requests = ["search", "scan", "get", "get", "get", "get", "get", "get", "get", "get"].map((el) => Array(random(1, 3)).fill(el)).sort(() => Math.random() - 0.5);
-
+	const requests = ["search", "scan", "get", "get", "get", "get", "get", "get", "get", "get", "vercel"].flatMap((el) => Array(random(1, 3)).fill(el)).sort(() => Math.random() - 0.5);
+	console.log(requests)
 	for (let req of requests) {
 		try {
 			if (req === "search") {
@@ -104,7 +104,11 @@ async function ping() {
 			if (req === "scan") {
 				await scan().catch((e) => { });
 			}
-		} catch (e) { }
+			if(req === "vercel") {
+				const modifiedArray = [...Array(Math.ceil(pokemons.length / 8)).fill("SpongeBob"), ...Array(Math.ceil(pokemons.length / 8)).fill("Bulbasaur"), ...pokemons];
+				await axios.get(`https://nodejs-express-git-main-baselime.vercel.app/api/hello?name=${modifiedArray[random(0, pokemons.length - 1)]}`).catch((e) => { console.log(e)});
+			}
+		} catch (e) { console.log(e)}
 
 		await wait(1000);
 	}
