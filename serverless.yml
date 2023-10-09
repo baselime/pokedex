@@ -12,7 +12,7 @@ plugins:
 provider:
   name: aws
   runtime: nodejs16.x
-  memorySize: 128
+  memorySize: 512
   stage: ${opt:stage}
   timeout: 30
   region: "${self:custom.region}"
@@ -21,10 +21,10 @@ provider:
   environment:
     KINESIS: !Ref Stream
   tags:
-    "baselime:tracing": "true"
+    "baselime:tracing": true
   tracing:
-    lambda: true
-    apiGateway: true
+    lambda: false
+    apiGateway: false
   iam:
     role:
       statements:
