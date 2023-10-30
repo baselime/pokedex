@@ -89,7 +89,7 @@ async function ping() {
 		"Abra",
 	];
 
-	const requests = ["search", "scan", "get", "get", "get", "get", "get", "get", "get", "get", "vercel"].flatMap((el) => Array(random(1, 3)).fill(el)).sort(() => Math.random() - 0.5);
+	const requests = ["search", "scan", "get", "get", "get", "get", "get", "get", "get", "get", "vercel", "cloudflare"].flatMap((el) => Array(random(1, 3)).fill(el)).sort(() => Math.random() - 0.5);
 	console.log(requests)
 	for (let req of requests) {
 		try {
@@ -107,6 +107,9 @@ async function ping() {
 			if(req === "vercel") {
 				await axios.get(`https://t3-app-rouge.vercel.app/api/trpc/post.getLatest`).catch((e) => { console.log(e)});
 				await axios.get(`https://nodejs-serverless-function-express-bice-sigma.vercel.app/api/hello`).catch((e) => { console.log(e)});
+			}
+			if(req === "cloudflare") {
+				await axios.get("https://cloudflare-otel-playground.baselime.workers.dev/").catch(e => { console.log(e) })
 			}
 		} catch (e) { console.log(e)}
 
