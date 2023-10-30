@@ -105,8 +105,8 @@ async function ping() {
 				await scan().catch((e) => { });
 			}
 			if(req === "vercel") {
-				const modifiedArray = [...Array(Math.ceil(pokemons.length / 8)).fill("SpongeBob"), ...Array(Math.ceil(pokemons.length / 8)).fill("Bulbasaur"), ...pokemons];
-				await axios.get(`https://nodejs-express-git-main-baselime.vercel.app/api/hello?name=${modifiedArray[random(0, pokemons.length - 1)]}`).catch((e) => { console.log(e)});
+				await axios.get(`https://t3-app-rouge.vercel.app/api/trpc/post.getLatest`).catch((e) => { console.log(e)});
+				await axios.get(`https://nodejs-serverless-function-express-bice-sigma.vercel.app/api/hello`).catch((e) => { console.log(e)});
 			}
 		} catch (e) { console.log(e)}
 
