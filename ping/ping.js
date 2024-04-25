@@ -89,7 +89,7 @@ async function ping() {
 		"Abra",
 	];
 
-	const requests = ["search", "scan", "get", "get", "get", "get", "get", "get", "get", "get", "vercel", "cloudflare"].flatMap((el) => Array(random(1, 3)).fill(el)).sort(() => Math.random() - 0.5);
+	const requests = ["search", "scan", "get", "vercel", "cloudflare"].sort(() => Math.random() - 0.5);
 	console.log(requests)
 	for (let req of requests) {
 		try {
