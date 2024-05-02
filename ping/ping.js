@@ -109,7 +109,7 @@ async function ping() {
 				await axios.get(`https://nodejs-serverless-function-express-bice-sigma.vercel.app/api/hello`).catch((e) => { console.log(e)});
 			}
 			if(req === "cloudflare") {
-				await axios.get("https://cloudflare-otel-playground.baselime.workers.dev/").catch(e => { console.log(e) })
+				await axios.get("https://cloudflare-demo.baselime.workers.dev/").catch(e => { console.log(e) })
 			}
 		} catch (e) { console.log(e)}
 
