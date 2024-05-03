@@ -109,6 +109,15 @@ async function ping() {
 				await axios.get(`https://nodejs-serverless-function-express-bice-sigma.vercel.app/api/hello`).catch((e) => { console.log(e)});
 			}
 			if(req === "cloudflare") {
+				if(Math.random() < (1/30)) { 
+					const errors = [1,2,3,4,5,6,7,8,89,9,1,23,6,2,26,3,73,357,357,34,375,347,2,152];
+					for(let e of errors) {
+						await axios.get("https://cloudflare-demo.baselime.workers.dev?error=true")
+					}
+				}
+				await axios.get("https://cloudflare-otel-playground.baselime.workers.dev/").catch(e => { console.log(e) })
+				await axios.get("https://cloudflare-demo.baselime.workers.dev/").catch(e => { console.log(e) })
+				await axios.get("https://cloudflare-demo.baselime.workers.dev/").catch(e => { console.log(e) })
 				await axios.get("https://cloudflare-demo.baselime.workers.dev/").catch(e => { console.log(e) })
 			}
 		} catch (e) { console.log(e)}
